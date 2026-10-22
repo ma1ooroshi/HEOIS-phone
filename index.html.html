@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>iPhone 17 Pro</title>
+<meta property="og:title" content="iPhone 17 Web OS">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+        },
+        colors: {
+          iosBg: '#F2F2F7',
+          iosDarkBg: '#000000',
+          iosCard: '#FFFFFF',
+          iosCardDark: '#1C1C1E',
+          iosBlue: '#007AFF',
+          iosGreen: '#34C759',
+          iosRed: '#FF3B30',
+          iosYellow: '#FFCC00',
+          iosGray: '#8E8E93',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: #111113;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;
+    user-select: none;
+    overflow: hidden;
+  }
+  
+  /* 아이폰 17 규격 프레임 (402pt x 874pt) */
+  #phone-container {
+    width: 402px;
+    height: 874px;
+    border-radius: 56px;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 0 12px #2c2c2e, 0 0 0 13px #1a1a1b, 0 30px 80px rgba(0, 0, 0, 0.8);
+    transition: transform 0.2s ease;
+  }
+
+  /* Screen View transition */
+  .view-screen {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: scale(0.96);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .view-screen.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+  }
+
+  /* Wallpaper Background */
+  .wallpaper {
+    background: var(--wp-bg, linear-gradient(160deg, #1a2a6c, #b21f1f, #fdbb2d));
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* Dynamic Island */
+  #dynamic-island {
+    position: absolute;
+    top: 11px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 37px;
+    background: #000000;
+    border-radius: 20px;
+    z-index: 100;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    color: white;
+  }
+
+  /* Home Indicator */
+  #home-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 5px;
+    background: #ffffff;
+    border-radius: 3px;
+    z-index: 100;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  #home-indicator.dark { background: #000000; }
+
+  /* App Icons Grid */
+  .app-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 22px 18px;
+    padding: 20px 26px;
+  }
+  
+  .app-icon-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+  .app-icon-wrapper:active .app-icon {
+    transform: scale(0.9);
+  }
+  
+  .app-icon {
+    width: 62px;
+    height: 62px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: transform 0.15s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .app-label {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+    letter-spacing: -0.2px;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar { width: 0px; height: 0px; }
+
+  /* iOS Bottom Tab Bar */
+  .ios-tab-bar {
+    height: 83px;
+    padding-bottom: 24px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 0.5px solid rgba(0, 0, 0, 0.15);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+  .dark .ios-tab-bar {
+    background: rgba(20, 20, 20, 0.85);
+    border-top-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    color: #8E8E93;
+    font-size: 10px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .tab-item.active {
+    color: var(--theme-color, #007AFF);
+  }
+  .tab-item svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Keypad Buttons */
+  .keypad-btn {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 28px;
+    font-weight: 400;
+  }
+  .keypad-btn:active {
+    background: rgba(255, 255, 255, 0.4);
+  }
+</style>
+</head>
+<body>
+
+<div id="phone-container">
+  
+  <!-- Status Bar -->
+  <div id="status-bar" class="absolute top-0 left-0 right-0 h-[54px] pt-[17px] px-[32px] flex justify-between text-white text-[15px] font-semibold z-[90] pointer-events-none">
+    <span id="sb-time">09:41</span>
+    <div class="flex items-center gap-1.5 text-[12px]">
+      <span>5G</span>
+      <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.22 19.57 10.57 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>
+      <span>100%</span>
+    </div>
+  </div>
+
+  <!-- Dynamic Island -->
+  <div id="dynamic-island">
+    <div class="w 2.5 h-2.5 rounded-full bg-green-500 opacity-0 transition-opacity" id="di-indicator"></div>
+    <div class="text-[11px] text-gray-400 font-medium truncate max-w-[80px]" id="di-text">iPhone</div>
+  </div>
+
+  <!-- Home Indicator -->
+  <div id="home-indicator"></div>
+
+  <!-- 1. Lock Screen -->
+  <div id="screen-lock" class="view-screen wallpaper active text-white flex flex-col items-center justify-between pt-[100px] pb-[40px]">
+    <div class="text-center">
+      <div id="lock-date" class="text-[20px] font-medium opacity-90">10월 23일 금요일</div>
+      <div id="lock-time" class="text-[84px] font-semibold tracking-tight leading-none mt-1">09:41</div>
+    </div>
+    <div class="text-center text-[14px] opacity-75 animate-pulse">
+      위로 쓸어올려서 열기
+    </div>
+  </div>
+
+  <!-- 2. PIN Screen -->
+  <div id="screen-pin" class="view-screen wallpaper text-white flex flex-col items-center pt-[120px]">
+    <h2 class="text-[20px] font-medium mb-6">암호 입력</h2>
+    <div id="pin-dots" class="flex gap-4 mb-4">
+      <div class="w-3.5 h-3.5 rounded-full border-2 border-white"></div>
+      <div class="w-3.5 h-3.5 rounded-full border-2 border-white"></div>
+      <div class="w-3.5 h-3.5 rounded-full border-2 border-white"></div>
+      <div class="w-3.5 h-3.5 rounded-full border-2 border-white"></div>
+    </div>
+    <div id="pin-msg" class="h-6 text-[13px] text-red-300 font-medium"></div>
+
+    <div id="pin-keypad" class="grid grid-cols-3 gap-x-6 gap-y-4 mt-6">
+      <!-- Generated Dynamically -->
+    </div>
+  </div>
+
+  <!-- 3. Home Screen -->
+  <div id="screen-home" class="view-screen wallpaper pt-[60px] justify-between pb-[20px]">
+    <!-- Apps Grid -->
+    <div class="app-grid" id="main-app-grid">
+      <!-- Rendered via JS -->
+    </div>
+
+    <!-- Dock -->
+    <div class="mx-4 mb-3 p-3 rounded-[36px] bg-white/25 backdrop-blur-2xl flex justify-around items-center border border-white/20">
+      <div class="app-icon-wrapper" onclick="openApp('phone')">
+        <div class="app-icon bg-iosGreen">📞</div>
+      </div>
+      <div class="app-icon-wrapper" onclick="openApp('photos')">
+        <div class="app-icon bg-white text-black text-[22px]">🌸</div>
+      </div>
+      <div class="app-icon-wrapper" onclick="openApp('camera')">
+        <div class="app-icon bg-gray-500">📷</div>
+      </div>
+      <div class="app-icon-wrapper" onclick="openApp('kakao')">
+        <div class="app-icon bg-[#FEE500] text-[#3B1E1E] font-bold text-[18px]">TALK</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. App Screen Holder -->
+  <div id="screen-app" class="view-screen bg-iosBg dark:bg-black text-black dark:text-white pt-[54px]">
+    <!-- Dynamic Content Rendered Here -->
+    <div id="app-header" class="px-5 py-2 flex items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-black/80 backdrop-blur-md sticky top-0 z-20">
+      <h1 id="app-title" class="text-[28px] font-bold tracking-tight">앱 이름</h1>
+      <div id="app-header-extra"></div>
+    </div>
+
+    <div id="app-body" class="flex-1 overflow-y-auto relative">
+      <!-- Tab Page Content -->
+    </div>
+
+    <nav id="app-tab-bar" class="ios-tab-bar">
+      <!-- Tabs Rendered Here -->
+    </nav>
+  </div>
+
+</div>
+
+<!-- Lightbox Modal for Photos -->
+<div id="photo-modal" class="fixed inset-0 bg-black/90 z-[200] hidden flex items-center justify-center p-4" onclick="closePhotoModal()">
+  <img id="photo-modal-img" src="" class="max-w-full max-h-[80vh] rounded-lg object-contain">
+</div>
+
+<script>
+// ================= USER CONFIGURABLE DATA =================
+const DEFAULT_DATA = {
+  pin: "1234",
+  hint: "초기 암호는 1234 입니다",
+  wallpaper: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop",
+  
+  contacts: [
+    { id: 1, name: "엄마", num: "010-1234-5678", fav: true, img: "" },
+    { id: 2, name: "아빠", num: "010-2345-6789", fav: true, img: "" },
+    { id: 3, name: "김민지", num: "010-3456-7890", fav: true, img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" },
+    { id: 4, name: "박준호", num: "010-4567-8901", fav: false, img: "" }
+  ],
+  
+  recents: [
+    { name: "엄마", num: "010-1234-5678", type: "수신", time: "오후 2:14" },
+    { name: "010-9876-5432", num: "010-9876-5432", type: "부재중", time: "오전 11:02" },
+    { name: "김민지", num: "010-3456-7890", type: "발신", time: "오전 9:30" }
+  ],
+  
+  voicemails: [
+    { name: "박준호", time: "어제", duration: "0:24" }
+  ],
+  
+  photos: [
+    { id: 1, src: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500", album: "여행", fav: true },
+    { id: 2, src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=500", album: "여행", fav: false },
+    { id: 3, src: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=500", album: "일상", fav: true },
+    { id: 4, src: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=500", album: "일상", fav: false }
+  ],
+
+  spotify: {
+    recommended: [
+      { title: "New Jeans", artist: "NewJeans", img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=120" },
+      { title: "Seven (feat. Latto)", artist: "정국", img: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=120" },
+      { title: "Supernova", artist: "aespa", img: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=120" }
+    ],
+    playlists: [
+      { name: "드라이브 명곡 믹스", count: "24곡", img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=120" },
+      { name: "카페에서 듣기 좋은 음악", count: "40곡", img: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=120" }
+    ]
+  },
+
+  kakao: {
+    me: { name: "나", status: "오늘도 열공 🔥", img: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100" },
+    friends: [
+      { name: "김민지", status: "화이팅!", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" },
+      { name: "박준호", status: "여행 중 ✈️", img: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100" }
+    ],
+    chats: [
+      {
+        id: 1, name: "김민지", lastMsg: "오늘 7시에 보자!", time: "오후 3:10", unread: 1,
+        msgs: [
+          { sender: "김민지", text: "오늘 저녁 뭐 먹을래?", time: "오후 3:08" },
+          { sender: "me", text: "고기 어때?", time: "오후 3:09" },
+          { sender: "김민지", text: "좋아! 오늘 7시에 보자!", time: "오후 3:10" }
+        ]
+      }
+    ]
+  },
+
+  insta: {
+    stories: [
+      { name: "내 스토리", img: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100" },
+      { name: "minji_k", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" },
+      { name: "junho_p", img: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100" }
+    ],
+    feed: [
+      { name: "minji_k", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600", likes: 142, caption: "주말 바다 여행 🌊☀️" },
+      { name: "junho_p", avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100", img: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600", likes: 89, caption: "새로 오픈한 맛집 탐방 🍕" }
+    ],
+    reels: [
+      { name: "travel_gram", caption: "제주도 감성 숙소 추천 TOP 3 🏝️", img: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600" }
+    ]
+  },
+
+  cal: {
+    year: 2026, month: 10, today: 23,
+    events: {
+      "2026-10-23": ["중요 회의 (오전 10:00)"],
+      "2026-10-25": ["친구나 만남 (오후 2:00)"],
+      "2026-10-30": ["프로젝트 마감일 (종일)"]
+    }
+  },
+
+  weather: {
+    city: "서울", temp: 18, desc: "맑음", high: 22, low: 11,
+    hourly: [
+      { time: "지금", temp: 18, icon: "☀️" },
+      { time: "오후 10시", temp: 16, icon: "🌙" },
+      { time: "오후 11시", temp: 15, icon: "🌙" },
+      { time: "오전 00시", temp: 14, icon: "☁️" }
+    ]
+  }
+};
+
+// Load Saved Data or fallback
+let DATA = JSON.parse(localStorage.getItem("IPHONE17_DATA") || JSON.stringify(DEFAULT_DATA));
+function saveData() { localStorage.setItem("IPHONE17_DATA", JSON.stringify(DATA)); }
+
+// App Definitions
+const APPS = {
+  phone: { name: "전화", bg: "#34C759", icon: "📞", theme: "#34C759" },
+  photos: { name: "사진", bg: "linear-gradient(135deg,#fbc02d,#f06292,#7e57c2)", icon: "🌸", theme: "#007AFF" },
+  camera: { name: "카메라", bg: "#8E8E93", icon: "📷", locked: true },
+  kakao: { name: "카카오톡", bg: "#FEE500", icon: "💬", color: "#3B1E1E", theme: "#3B1E1E" },
+  insta: { name: "Instagram", bg: "linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7)", icon: "📸", theme: "#000000" },
+  weather: { name: "날씨", bg: "linear-gradient(#4aa3f0,#2b6fd6)", icon: "☀️", theme: "#2b6fd6" },
+  spotify: { name: "Spotify", bg: "#1DB954", icon: "♫", dark: true, theme: "#1DB954" },
+  youtube: { name: "YouTube", bg: "#FF0000", icon: "▶", locked: true },
+  calendar: { name: "캘린더", bg: "#FFFFFF", icon: DATA.cal.today, color: "#FF3B30", theme: "#FF3B30" }
+};
+
+let state = {
+  currentScreen: 'lock',
+  currentApp: null,
+  currentTab: 0,
+  activeSub: null,
+  pinEntered: '',
+  selectedDay: DATA.cal.today,
+  nowPlaying: null
+};
+
+// ================= DOM ELEMENTS & UTILS =================
+const $ = s => document.querySelector(s);
+function updateTime() {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+  $('#sb-time').textContent = timeStr;
+  $('#lock-time').textContent = timeStr;
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+// Resize Scaling for Responsive Layout
+function autoScale() {
+  const container = $('#phone-container');
+  const scale = Math.min(1, (window.innerHeight - 20) / 874, (window.innerWidth - 10) / 402);
+  container.style.transform = `scale(${scale})`;
+}
+window.addEventListener('resize', autoScale);
+autoScale();
+
+// Screen Switcher
+function showScreen(id) {
+  document.querySelectorAll('.view-screen').forEach(el => el.classList.remove('active'));
+  $(`#screen-${id}`).classList.add('active');
+  state.currentScreen = id;
+  
+  if (id === 'app' && APPS[state.currentApp]?.dark) {
+    $('#screen-app').classList.add('dark');
+    $('#home-indicator').classList.remove('dark');
+  } else {
+    $('#screen-app').classList.remove('dark');
+    $('#home-indicator').classList.toggle('dark', id === 'app');
+  }
+}
+
+// Dynamic Island Feedback
+function triggerDI(text) {
+  const di = $('#dynamic-island');
+  const txt = $('#di-text');
+  const ind = $('#di-indicator');
+  
+  di.style.width = "200px";
+  txt.textContent = text;
+  ind.classList.remove('opacity-0');
+  
+  setTimeout(() => {
+    di.style.width = "126px";
+    txt.textContent = "iPhone";
+    ind.classList.add('opacity-0');
+  }, 2000);
+}
+
+// ================= LOCK & PIN LOGIC =================
+$('#screen-lock').addEventListener('click', () => {
+  state.pinEntered = '';
+  renderPinDots();
+  showScreen('pin');
+});
+
+function renderPinKeypad() {
+  const keypad = $('#pin-keypad');
+  keypad.innerHTML = [1,2,3,4,5,6,7,8,9,'',0,'취소'].map(k => {
+    if (k === '') return '<div></div>';
+    return `<button class="keypad-btn" onclick="handlePinInput('${k}')">${k}</button>`;
+  }).join('');
+}
+renderPinKeypad();
+
+function renderPinDots() {
+  const dots = document.querySelectorAll('#pin-dots div');
+  dots.forEach((dot, idx) => {
+    if (idx < state.pinEntered.length) {
+      dot.classList.add('bg-white');
+    } else {
+      dot.classList.remove('bg-white');
+    }
+  });
+}
+
+function handlePinInput(val) {
+  if (val === '취소') {
+    showScreen('lock');
+    return;
+  }
+  if (state.pinEntered.length < 4) {
+    state.pinEntered += val;
+    renderPinDots();
+  }
+  
+  if (state.pinEntered.length === 4) {
+    if (state.pinEntered === DATA.pin) {
+      $('#pin-msg').textContent = '';
+      showScreen('home');
+    } else {
+      $('#pin-msg').textContent = DATA.hint || "암호가 틀렸습니다.";
+      setTimeout(() => {
+        state.pinEntered = '';
+        renderPinDots();
+      }, 400);
+    }
+  }
+}
+
+// ================= HOME SCREEN =================
+function renderHomeScreen() {
+  const grid = $('#main-app-grid');
+  const appsToDisplay = ['insta', 'weather', 'spotify', 'youtube', 'calendar'];
+  
+  grid.innerHTML = appsToDisplay.map(id => {
+    const app = APPS[id];
+    return `
+      <div class="app-icon-wrapper" onclick="openApp('${id}')">
+        <div class="app-icon" style="background: ${app.bg}; color: ${app.color || '#fff'}">
+          ${app.icon}
+        </div>
+        <span class="app-label">${app.name}</span>
+      </div>
+    `;
+  }).join('');
+}
+renderHomeScreen();
+
+// Home Indicator Click
+$('#home-indicator').addEventListener('click', () => {
+  if (state.currentScreen === 'app') {
+    showScreen('home');
+  } else if (state.currentScreen === 'home') {
+    showScreen('lock');
+  }
+});
+
+// ================= APP DISPATCHER =================
+function openApp(appId) {
+  const app = APPS[appId];
+  if (app.locked) {
+    triggerDI(`${app.name} 사용 불가`);
+    return;
+  }
+  
+  state.currentApp = appId;
+  state.currentTab = 0;
+  state.activeSub = null;
+  
+  document.documentElement.style.setProperty('--theme-color', app.theme || '#007AFF');
+  renderApp();
+  showScreen('app');
+}
+
+function renderApp() {
+  const app = APPS[state.currentApp];
+  const headerTitle = $('#app-title');
+  const appBody = $('#app-body');
+  const tabBar = $('#app-tab-bar');
+  
+  headerTitle.textContent = app.name;
+  $('#app-header-extra').innerHTML = '';
+
+  // App Switcher logic
+  switch(state.currentApp) {
+    case 'phone': renderPhoneApp(appBody, tabBar); break;
+    case 'photos': renderPhotosApp(appBody, tabBar); break;
+    case 'spotify': renderSpotifyApp(appBody, tabBar); break;
+    case 'kakao': renderKakaoApp(appBody, tabBar); break;
+    case 'insta': renderInstaApp(appBody, tabBar); break;
+    case 'calendar': renderCalendarApp(appBody, tabBar); break;
+    case 'weather': renderWeatherApp(appBody, tabBar); break;
+  }
+}
+
+// ================= APP 1: PHONE =================
+function renderPhoneApp(body, tab) {
+  const tabs = ['즐겨찾기', '최근 통화', '연락처', '음성사서함'];
+  tab.innerHTML = tabs.map((t, idx) => `
+    <div class="tab-item ${state.currentTab === idx ? 'active' : ''}" onclick="switchTab(${idx})">
+      <div class="text-[18px]">${['★', '🕒', '👤', '🎙️'][idx]}</div>
+      <span>${t}</span>
+    </div>
+  `).join('');
+
+  $('#app-title').textContent = tabs[state.currentTab];
+
+  let html = '';
+  if (state.currentTab === 0) { // Favorites
+    html = `<div class="p-4 divide-y divide-gray-200 dark:divide-gray-800">
+      ${DATA.contacts.filter(c => c.fav).map(c => `
+        <div class="py-3 flex items-center justify-between" onclick="makeCall('${c.name}')">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-iosBlue text-white flex items-center justify-center font-bold">
+              ${c.img ? `<img src="${c.img}" class="w-full h-full rounded-full object-cover">` : c.name[0]}
+            </div>
+            <div>
+              <div class="font-medium">${c.name}</div>
+              <div class="text-xs text-gray-500">${c.num}</div>
+            </div>
+          </div>
+          <span class="text-iosGreen text-xl">📞</span>
+        </div>
+      `).join('')}
+    </div>`;
+  } else if (state.currentTab === 1) { // Recents
+    html = `<div class="p-4 divide-y divide-gray-200 dark:divide-gray-800">
+      ${DATA.recents.map(r => `
+        <div class="py-3 flex items-center justify-between" onclick="makeCall('${r.name}')">
+          <div>
+            <div class="font-medium ${r.type === '부재중' ? 'text-iosRed' : ''}">${r.name}</div>
+            <div class="text-xs text-gray-500">${r.type} · ${r.time}</div>
+          </div>
+          <span class="text-xs text-gray-400">ℹ️</span>
+        </div>
+      `).join('')}
+    </div>`;
+  } else if (state.currentTab === 2) { // Contacts
+    html = `<div class="p-4 divide-y divide-gray-200 dark:divide-gray-800">
+      ${DATA.contacts.map(c => `
+        <div class="py-3 flex items-center justify-between" onclick="makeCall('${c.name}')">
+          <div class="font-medium">${c.name}</div>
+          <div class="text-xs text-gray-500">${c.num}</div>
+        </div>
+      `).join('')}
+    </div>`;
+  } else if (state.currentTab === 3) { // Voicemails
+    html = `<div class="p-4 divide-y divide-gray-200 dark:divide-gray-800">
+      ${DATA.voicemails.map(v => `
+        <div class="py-3 flex items-center justify-between">
+          <div>
+            <div class="font-medium">${v.name}</div>
+            <div class="text-xs text-gray-500">${v.time} (${v.duration})</div>
+          </div>
+          <button class="text-iosBlue text-sm font-medium" onclick="triggerDI('음성사서함 재생')">재생</button>
+        </div>
+      `).join('')}
+    </div>`;
+  }
+  body.innerHTML = html;
+}
+
+function makeCall(name) {
+  triggerDI(`${name} 통화 연결 중...`);
+}
+
+// ================= APP 2: PHOTOS =================
+function renderPhotosApp(body, tab) {
+  const tabs = ['즐겨찾기', '앨범', '사진'];
+  tab.innerHTML = tabs.map((t, idx) => `
+    <div class="tab-item ${state.currentTab === idx ? 'active' : ''}" onclick="switchTab(${idx})">
+      <div class="text-[18px]">${['♥', '📁', '🖼️'][idx]}</div>
+      <span>${t}</span>
+    </div>
+  `).join('');
+
+  $('#app-title').textContent = state.activeSub || tabs[state.currentTab];
+
+  let photos = DATA.photos;
+  if (state.currentTab === 0) photos = photos.filter(p => p.fav);
+  if (state.activeSub) photos = photos.filter(p => p.album === state.activeSub);
+
+  if (state.currentTab === 1 && !state.activeSub) {
+    const albums = [...new Set(DATA.photos.map(p => p.album))];
+    body.innerHTML = `<div class="grid grid-cols-2 gap-4 p-4">
+      ${albums.map(al => {
+        const cover = DATA.photos.find(p => p.album === al)?.src;
+        return `
+          <div class="cursor-pointer" onclick="openSubAlbum('${al}')">
+            <div class="aspect-square rounded-xl overflow-hidden bg-gray-200">
+              <img src="${cover}" class="w-full h-full object-cover">
+            </div>
+            <div class="mt-1 font-medium text-sm">${al}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>`;
+  } else {
+    body.innerHTML = `
+      ${state.activeSub ? `<button class="p-3 text-iosBlue text-sm font-medium" onclick="openSubAlbum(null)">‹ 앨범 목록</button>` : ''}
+      <div class="grid grid-cols-3 gap-1 p-1">
+        ${photos.map(p => `
+          <div class="aspect-square bg-gray-300 relative overflow-hidden" onclick="openPhotoModal('${p.src}')">
+            <img src="${p.src}" class="w-full h-full object-cover">
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+}
+
+function openSubAlbum(album) {
+  state.activeSub = album;
+  renderApp();
+}
+
+function openPhotoModal(src) {
+  $('#photo-modal-img').src = src;
+  $('#photo-modal').classList.remove('hidden');
+}
+function closePhotoModal() {
+  $('#photo-modal').classList.add('hidden');
+}
+
+// ================= APP 3: SPOTIFY =================
+function renderSpotifyApp(body, tab) {
+  const tabs = ['추천', '재생목록'];
+  tab.innerHTML = tabs.map((t, idx) => `
+    <div class="tab-item ${state.currentTab === idx ? 'active' : ''}" onclick="switchTab(${idx})">
+      <div class="text-[18px]">${['🎵', '📚'][idx]}</div>
+      <span>${t}</span>
+    </div>
+  `).join('');
+
+  $('#app-title').textContent = tabs[state.currentTab];
+
+  let html = '';
+  if (state.currentTab === 0) {
+    html = `<div class="p-4 space-y-3">
+      ${DATA.spotify.recommended.map(s => `
+        <div class="flex items-center gap-3 p-2 bg-zinc-900 rounded-lg cursor-pointer" onclick="playMusic('${s.title}', '${s.artist}')">
+          <img src="${s.img}" class="w-12 h-12 rounded object-cover">
+          <div class="flex-1">
+            <div class="font-medium text-white">${s.title}</div>
+            <div class="text-xs text-gray-400">${s.artist}</div>
+          </div>
+          <span class="text-green-500 text-xl">▶</span>
+        </div>
+      `).join('')}
+    </div>`;
+  } else {
+    html = `<div class="p-4 space-y-3">
+      ${DATA.spotify.playlists.map(p => `
+        <div class="flex items-center gap-3 p-2 bg-zinc-900 rounded-lg">
+          <img src="${p.img}" class="w-14 h-14 rounded object-cover">
+          <div>
+            <div class="font-medium text-white">${p.name}</div>
+            <div class="text-xs text-gray-400">${p.count}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+  }
+
+  if (state.nowPlaying) {
+    html += `
+      <div class="fixed bottom-[84px] left-2 right-2 p-3 bg-green-600 text-white rounded-xl flex justify-between items-center shadow-lg">
+        <div class="text-sm truncate">♫ ${state.nowPlaying}</div>
+        <button onclick="state.nowPlaying=null; renderApp();" class="text-xs font-bold">정지</button>
+      </div>
+    `;
+  }
+  body.innerHTML = html;
+}
+
+function playMusic(title, artist) {
+  state.nowPlaying = `${title} - ${artist}`;
+  triggerDI(`재생 중: ${title}`);
+  renderApp();
+}
+
+// ================= APP 4: KAKAO TALK =================
+function renderKakaoApp(body, tab) {
+  const tabs = ['친구', '채팅', '더보기'];
+  tab.innerHTML = tabs.map((t, idx) => `
+    <div class="tab-item ${state.currentTab === idx ? 'active' : ''}" onclick="switchTab(${idx})">
+      <div class="text-[18px]">${['👤', '💬', '•••'][idx]}</div>
+      <span>${t}</span>
+    </div>
+  `).join('');
+
+  if (state.activeSub !== null && state.currentTab === 1) { // Chat room view
+    const chat = DATA.kakao.chats.find(c => c.id === state.activeSub);
+    $('#app-title').textContent = chat.name;
+    
+    body.innerHTML = `
+      <div class="p-3 bg-[#BACEE0] min-h-full flex flex-col justify-between">
+        <div class="space-y-3">
+          <button class="text-xs text-gray-700 bg-white/50 px-2 py-1 rounded" onclick="openChatRoom(null)">‹ 목록</button>
+          ${chat.msgs.map(m => `
+            <div class="flex flex-col ${m.sender === 'me' ? 'items-end' : 'items-start'}">
+              <div class="text-[10px] text-gray-600 mb-0.5">${m.sender === 'me' ? '' : m.sender}</div>
+              <div class="p-2.5 rounded-xl text-sm max-w-[70%] ${m.sender === 'me' ? 'bg-[#FEE500] text-black' : 'bg-white text-black'}">
+                ${m.text}
+              </div>
+              <span class="text-[9px] text-gray-500 mt-0.5">${m.time}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="mt-4 flex gap-2">
+          <input id="chat-input" class="flex-1 p-2 rounded-full text-sm outline-none border" placeholder="메시지 보내기">
+          <button onclick="sendKakaoMsg(${chat.id})" class="bg-[#FEE500] text-[#3B1E1E] px-4 py-2 rounded-full text-xs font-bold">전송</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  $('#app-title').textContent = tabs[state.currentTab];
+
+  if (state.currentTab === 0) { // Friends List
+    body.innerHTML = `<div class="p-4 space-y-4">
+      <div class="flex items-center gap-3 pb-3 border-b">
+        <img src="${DATA.kakao.me.img}" class="w-12 h-12 rounded-2xl object-cover">
+        <div>
+          <div class="font-bold text-sm">${DATA.kakao.me.name}</div>
+          <div class="text-xs text-gray-500">${DATA.kakao.me.status}</div>
+        </div>
+      </div>
+      <div class="text-xs text-gray-400">친구 ${DATA.kakao.friends.length}</div>
+      ${DATA.kakao.friends.map(f => `
+        <div class="flex items-center gap-3">
+          <img src="${f.img}" class="w-10 h-10 rounded-2xl object-cover">
+          <div>
+            <div class="font-medium text-sm">${f.name}</div>
+            <div class="text-xs text-gray-500">${f.status}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+  } else if (state.currentTab === 1) { // Chat List
+    body.innerHTML = `<div class="divide-y">
+      ${DATA.kakao.chats.map(c => `
+        <div class="p-4 flex items-center justify-between cursor-pointer" onclick="openChatRoom(${c.id})">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 bg-gray-300 rounded-2xl flex items-center justify-center font-bold text-white">
+              ${c.name[0]}
+            </div>
+            <div>
+              <div class="font-bold text-sm">${c.name}</div>
+              <div class="text-xs text-gray-500 truncate max-w-[180px]">${c.lastMsg}</div>
+            </div>
+          </div>
+          <div class="text-right text-xs text-gray-400">
+            <div>${c.time}</div>
+            ${c.unread ? `<span class="bg-red-500 text-white rounded-full px-1.5 py-0.5 text-[10px]">1</span>` : ''}
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+  } else { // More Tab
+    body.innerHTML = `<div class="p-4 grid grid-cols-3 gap-4 text-center text-xs">
+      ${['Pay', 'Gift', 'Shopping', 'Emoticon', 'Friends', 'Settings'].map(item => `
+        <div class="p-4 bg-gray-100 dark:bg-zinc-800 rounded-xl font-medium">${item}</div>
+      `).join('')}
+    </div>`;
+  }
+}
+
+function openChatRoom(id) {
+  state.activeSub = id;
+  renderApp();
+}
+
+function sendKakaoMsg(chatId) {
+  const input = $('#chat-input');
+  if (!input.value.trim()) return;
+  
+  const chat = DATA.kakao.chats.find(c => c.id === chatId);
+  chat.msgs.push({
+    sender: 'me',
+    text: input.value,
+    time: '방금'
+  });
+  chat.lastMsg = input.value;
+  saveData();
+  renderApp();
+}
+
+// ================= APP 5: INSTAGRAM =================
+function renderInstaApp(body, tab) {
+  const tabs = ['피드', '릴스'];
+  tab.innerHTML = tabs.map((t, idx) => `
+    <div class="tab-item ${state.currentTab === idx ? 'active' : ''}" onclick="switchTab(${idx})">
+      <div class="text-[18px]">${['🏠', '🎬'][idx]}</div>
+      <span>${t}</span>
+    </div>
+  `).join('');
+
+  if (state.currentTab === 0) { // Feed
+    body.innerHTML = `
+      <!-- Stories Bar -->
+      <div class="flex gap-3 p-3 overflow-x-auto border-b dark:border-zinc-800">
+        ${DATA.insta.stories.map(s => `
+          <div class="flex flex-col items-center gap-1 flex-shrink-0">
+            <div class="w-14 h-14 rounded-full p-[2px] bg-gradient-to-tr from-yellow-400 to-pink-600">
+              <img src="${s.img}" class="w-full h-full rounded-full object-cover border-2 border-white dark:border-black">
+            </div>
+            <span class="text-[10px]">${s.name}</span>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- Feed Posts -->
+      <div class="divide-y dark:divide-zinc-800">
+        ${DATA.insta.feed.map(p => `
+          <div class="py-3">
+            <div class="flex items-center gap-2 px-3 mb-2">
+              <img src="${p.avatar}" class="w-8 h-8 rounded-full object-cover">
+              <span class="text-xs font-bold">${p.name}</span>
+            </div>
+            <img src="${p.img}" class="w-full aspect-square object-cover">
+            <div class="p-3">
+              <div class="text-xs font-bold mb-1">좋아요 ${p.likes}개</div>
+              <div class="text-xs">
+                <span class="font-bold">${p.name}</span> ${p.caption}
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } else { // Reels
+    body.innerHTML = `
+      <div class="relative h-full bg-black text-white">
+        ${DATA.insta.reels.map(r => `
+          <div class="relative h-full w-full">
+            <img src="${r.img}" class="w-full h-full object-cover">
+            <div class="absolute bottom-6 left-4 right-4">
+              <div class="font-bold text-sm mb-1">@${r.name}</div>
+              <div class="text-xs">${r.caption}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+}
+
+// ================= APP 6: CALENDAR =================
+function renderCalendarApp(body, tab) {
+  tab.style.display = 'none'; // No tab bar needed
+
+  const { year, month, today, events } = DATA.cal;
+  const firstDay = new Date(year, month - 1, 1).getDay();
+  const daysInMonth = new Date(year, month, 0).getDate();
+
+  const selectedKey = `${year}-${String(month).padStart(2, '0')}-${String(state.selectedDay).padStart(2, '0')}`;
+  const dayEvents = events[selectedKey] || [];
+
+  $('#app-title').textContent = `${year}년 ${month}월`;
+
+  let daysHtml = '';
+  for (let i = 0; i < firstDay; i++) daysHtml += `<div></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateKey = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const hasEvent = !!events[dateKey];
+    const isSelected = d === state.selectedDay;
+    const isToday = d === today;
+
+    daysHtml += `
+      <div onclick="selectCalDay(${d})" class="aspect-square flex flex-col items-center justify-center relative rounded-full cursor-pointer text-sm
+        ${isToday ? 'bg-iosRed text-white font-bold' : ''}
+        ${isSelected && !isToday ? 'border-2 border-iosBlue' : ''}">
+        <span>${d}</span>
+        ${hasEvent ? `<span class="w-1 h-1 rounded-full bg-gray-400 absolute bottom-1"></span>` : ''}
+      </div>
+    `;
+  }
+
+  body.innerHTML = `
+    <div class="p-4">
+      <div class="grid grid-cols-7 text-center text-xs text-gray-400 mb-2 font-medium">
+        <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+      </div>
+      <div class="grid grid-cols-7 gap-1 text-center">
+        ${daysHtml}
+      </div>
+
+      <!-- Selected Day Event List -->
+      <div class="mt-6 border-t pt-4">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-bold text-base">${month}월 ${state.selectedDay}일 일정</h3>
+          <button onclick="addCalEvent('${selectedKey}')" class="text-xs bg-iosBlue text-white px-2.5 py-1 rounded-full">+ 추가</button>
+        </div>
+        <div class="space-y-2">
+          ${dayEvents.length ? dayEvents.map(e => `
+            <div class="p-3 bg-gray-100 dark:bg-zinc-800 rounded-xl text-xs font-medium">${e}</div>
+          `).join('') : `<div class="text-xs text-gray-400">일정이 없습니다.</div>`}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function selectCalDay(day) {
+  state.selectedDay = day;
+  renderApp();
+}
+
+function addCalEvent(dateKey) {
+  const title = prompt("새 일정 제목을 입력하세요:");
+  if (!title) return;
+
+  if (!DATA.cal.events[dateKey]) DATA.cal.events[dateKey] = [];
+  DATA.cal.events[dateKey].push(title);
+  saveData();
+  renderApp();
+}
+
+// ================= APP 7: WEATHER =================
+function renderWeatherApp(body, tab) {
+  tab.style.display = 'none';
+  const w = DATA.weather;
+
+  body.innerHTML = `
+    <div class="min-h-full bg-gradient-to-b from-blue-500 to-blue-700 text-white p-6 text-center">
+      <div class="text-2xl font-semibold">${w.city}</div>
+      <div class="text-7xl font-extralight my-2">${w.temp}°</div>
+      <div class="text-lg font-medium">${w.desc}</div>
+      <div class="text-sm opacity-80 mt-1">최고 ${w.high}° | 최저 ${w.low}°</div>
+
+      <div class="mt-8 bg-white/10 backdrop-blur-md rounded-2xl p-4">
+        <div class="text-xs font-medium mb-3 text-left opacity-75">시간별 예보</div>
+        <div class="flex justify-between text-xs">
+          ${w.hourly.map(h => `
+            <div class="flex flex-col items-center gap-1">
+              <span>${h.time}</span>
+              <span class="text-lg">${h.icon}</span>
+              <span class="font-bold">${h.temp}°</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Tab Switcher Handler
+function switchTab(idx) {
+  state.currentTab = idx;
+  state.activeSub = null;
+  renderApp();
+}
+</script>
+</body>
+</html>
