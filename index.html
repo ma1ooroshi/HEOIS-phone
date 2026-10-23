@@ -462,7 +462,7 @@ const APPS = {
   camera: { name: "카메라", bg: "#8E8E93", icon: "📷", locked: true },
   kakao: { name: "카카오톡", bg: "#FEE500", icon: "💬", color: "#3B1E1E", theme: "#3B1E1E" },
   insta: { name: "Instagram", bg: "linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7)", icon: "📸", theme: "#000000" },
-  weather: { name: "날씨", bg: "linear-gradient(#4aa3f0,#2b6fd6)", icon: "☀️", theme: "#2b6fd6" },
+  weather: { name: "날씨", bg: "linear-gradient(#4aa3f0,#2b6fd6)", icon: "☀️", theme: "#2b6fd6", fullDark: true },
   spotify: { name: "Spotify", bg: "#1DB954", icon: "♫", dark: true, theme: "#1DB954" },
   youtube: { name: "YouTube", bg: "#FF0000", icon: "▶", locked: true },
   calendar: { name: "캘린더", bg: "#FFFFFF", icon: DATA.cal.today, color: "#FF3B30", theme: "#FF3B30" }
@@ -506,14 +506,11 @@ function showScreen(id) {
   document.querySelectorAll('.view-screen').forEach(el => el.classList.remove('active'));
   $(`#screen-${id}`).classList.add('active');
   state.currentScreen = id;
-  
-  if (id === 'app' && APPS[state.currentApp]?.dark) {
-    $('#screen-app').classList.add('dark');
-    $('#home-indicator').classList.remove('dark');
-  } else {
-    $('#screen-app').classList.remove('dark');
-    $('#home-indicator').classList.toggle('dark', id === 'app');
-  }
+  const app = id === 'app' ? APPS[state.currentApp] : null;
+  const light = !!app && !app.dark && !app.fullDark; // 밝은 배경 앱 → 검은 글씨
+  $('#screen-app').classList.toggle('dark', !!app && !!app.dark);
+  $('#home-indicator').classList.toggle('dark', light);
+  $('#status-bar').style.color = light ? '#000' : '#fff';
 }
 
 // Dynamic Island Feedback
@@ -561,32 +558,23 @@ function renderPinDots() {
 }
 
 function handlePinInput(val) {
-  if (val === '취소') {
-    showScreen('lock');
+  if (val === '취소') { $('#pin-msg').textContent = ''; showScreen('lock'); return; }
+  if (state.pinEntered.length >= 4) return;
+  state.pinEntered += val;
+  if (state.pinEntered.length === 1) $('#pin-msg').textContent = '';
+  renderPinDots();
+  if (state.pinEntered.length < 4) return;
+  if (state.pinEntered === DATA.pin) {
+    $('#pin-msg').textContent = '';
+    setTimeout(() => showScreen('home'), 150);
     return;
   }
-  if (state.pinEntered.length < 4) {
-    state.pinEntered += val;
-    renderPinDots();
-  }
-  
-  if (state.pinEntered.length === 4) {
-    if (state.pinEntered === DATA.pin) {
-      $('#pin-msg').textContent = '';
-      showScreen('home');
-    } else {
-         buzz();
-      const dots = $('#pin-dots');
-      dots.classList.add('shake');
-      setTimeout(() => {
-        dots.classList.remove('shake');
-        state.pinEntered = '';
-        renderPinDots();
-      }, 450);
-    }
-  }
+  buzz();
+  $('#pin-msg').textContent = '암호를 다시 입력해 주세요';
+  const dots = $('#pin-dots');
+  dots.classList.add('shake');
+  setTimeout(() => { dots.classList.remove('shake'); state.pinEntered = ''; renderPinDots(); }, 450);
 }
-
 // ================= HOME SCREEN =================
 function renderHomeScreen() {
   const grid = $('#main-app-grid');
@@ -608,12 +596,9 @@ renderHomeScreen();
 
 // Home Indicator Click
 $('#home-indicator').addEventListener('click', () => {
-  if (state.currentScreen === 'app') {
-    showScreen('home');
-  } else if (state.currentScreen === 'home') {
-    showScreen('lock');
-  }
+  if (state.currentScreen === 'app') showScreen('home');
 });
+
 
 // ================= APP DISPATCHER =================
 function openApp(appId) {
@@ -639,6 +624,9 @@ function renderApp() {
   const tabBar = $('#app-tab-bar');
   
   headerTitle.textContent = app.name;
+  tabBar.style.display = '';
+  $('#app-header').style.display = state.currentApp === 'weather' ? 'none' : '';
+  appBody.ontouchstart = appBody.ontouchend = null;
   tabBar.style.display = '';
   $('#app-header-extra').innerHTML = '';
 
