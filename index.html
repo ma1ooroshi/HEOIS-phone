@@ -366,13 +366,35 @@ const DEFAULT_DATA = {
       { name: "김민지", status: "화이팅!", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" },
       { name: "박준호", status: "여행 중 ✈️", img: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100" }
     ],
-    chats: [
+        chats: [
       {
-        id: 1, name: "김민지", lastMsg: "오늘 7시에 보자!", time: "오후 3:10", unread: 1,
+        id: 1, name: "김민지", lastMsg: "좋아! 오늘 7시에 보자!", time: "오후 3:10", unread: 1,
         msgs: [
           { sender: "김민지", text: "오늘 저녁 뭐 먹을래?", time: "오후 3:08" },
           { sender: "me", text: "고기 어때?", time: "오후 3:09" },
           { sender: "김민지", text: "좋아! 오늘 7시에 보자!", time: "오후 3:10" }
+        ]
+      },
+      {
+        id: 2, name: "엄마", lastMsg: "밥은 먹었어?", time: "오후 12:30", unread: 2,
+        msgs: [
+          { sender: "엄마", text: "학교 잘 갔어?", time: "오후 12:29" },
+          { sender: "엄마", text: "밥은 먹었어?", time: "오후 12:30" }
+        ]
+      },
+      {
+        id: 3, name: "동아리 단톡방", lastMsg: "내일 모임 몇 시예요?", time: "오전 9:41", unread: 0,
+        msgs: [
+          { sender: "서준", text: "내일 모임 몇 시예요?", time: "오전 9:40" },
+          { sender: "지아", text: "저는 2시 가능해요", time: "오전 9:41" },
+          { sender: "me", text: "저도 2시 좋아요", time: "오전 9:41" }
+        ]
+      },
+      {
+        id: 4, name: "박준호", lastMsg: "ㅋㅋㅋ 알겠어", time: "어제", unread: 0,
+        msgs: [
+          { sender: "me", text: "내일 늦지 마", time: "어제" },
+          { sender: "박준호", text: "ㅋㅋㅋ 알겠어", time: "어제" }
         ]
       }
     ]
@@ -390,7 +412,23 @@ const DEFAULT_DATA = {
     ],
     reels: [
       { name: "travel_gram", caption: "제주도 감성 숙소 추천 TOP 3 🏝️", img: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600" }
-    ]
+    ],
+    dms: [
+      { id: 1, name: "minji_k", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100", last: "스토리 봤어?", time: "5분", unread: true,
+        msgs: [{ text: "스토리 봤어?" }, { text: "응 봤어 ㅋㅋ", me: true }] },
+      { id: 2, name: "junho_p", avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100", last: "ㅋㅋㅋ 인정", time: "1시간", unread: false,
+        msgs: [{ text: "그 맛집 어땠어?", me: true }, { text: "ㅋㅋㅋ 인정" }] }
+    ],
+    profile: 
+    { name: "나", handle: "my_account", bio: "자기소개를 여기에\n두 줄도 가능해요",
+      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100",
+      followers: 312, following: 285,
+      posts: [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300",
+        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=300",
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=300"
+      ]
+    }
   },
 
   cal: {
@@ -414,8 +452,8 @@ const DEFAULT_DATA = {
 };
 
 // Load Saved Data or fallback
-let DATA = JSON.parse(localStorage.getItem("IPHONE17_DATA") || JSON.stringify(DEFAULT_DATA));
-function saveData() { localStorage.setItem("IPHONE17_DATA", JSON.stringify(DATA)); }
+let DATA = JSON.parse(localStorage.getItem("IPHONE17_DATA_v2") || JSON.stringify(DEFAULT_DATA));
+function saveData() { localStorage.setItem("IPHONE17_DATA_v2", JSON.stringify(DATA)); }
 
 // App Definitions
 const APPS = {
@@ -537,11 +575,14 @@ function handlePinInput(val) {
       $('#pin-msg').textContent = '';
       showScreen('home');
     } else {
-      $('#pin-msg').textContent = DATA.hint || "암호가 틀렸습니다.";
+         buzz();
+      const dots = $('#pin-dots');
+      dots.classList.add('shake');
       setTimeout(() => {
+        dots.classList.remove('shake');
         state.pinEntered = '';
         renderPinDots();
-      }, 400);
+      }, 450);
     }
   }
 }
@@ -598,6 +639,7 @@ function renderApp() {
   const tabBar = $('#app-tab-bar');
   
   headerTitle.textContent = app.name;
+  tabBar.style.display = '';
   $('#app-header-extra').innerHTML = '';
 
   // App Switcher logic
@@ -642,27 +684,35 @@ function renderPhoneApp(body, tab) {
         </div>
       `).join('')}
     </div>`;
-  } else if (state.currentTab === 1) { // Recents
-    html = `<div class="p-4 divide-y divide-gray-200 dark:divide-gray-800">
-      ${DATA.recents.map(r => `
+   } else if (state.currentTab === 1) { // Recents
+    const list = state.missedOnly ? DATA.recents.filter(r => r.type === '부재중') : DATA.recents;
+    html = `<div class="px-4 pt-3">
+      <div class="flex bg-gray-200 dark:bg-zinc-800 rounded-lg p-0.5 text-xs font-medium">
+        ${[['전체', false], ['부재중', true]].map(([l, v]) => `
+          <button class="flex-1 py-1 rounded-md ${!!state.missedOnly === v ? 'bg-white dark:bg-zinc-600 shadow' : ''}"
+            onclick="state.missedOnly=${v}; renderApp()">${l}</button>`).join('')}
+      </div></div>
+      <div class="p-4 divide-y divide-gray-200 dark:divide-gray-800">
+      ${list.map(r => `
         <div class="py-3 flex items-center justify-between" onclick="makeCall('${r.name}')">
           <div>
             <div class="font-medium ${r.type === '부재중' ? 'text-iosRed' : ''}">${r.name}</div>
             <div class="text-xs text-gray-500">${r.type} · ${r.time}</div>
           </div>
           <span class="text-xs text-gray-400">ℹ️</span>
-        </div>
-      `).join('')}
-    </div>`;
+        </div>`).join('') || '<div class="py-8 text-center text-xs text-gray-400">통화 기록이 없습니다.</div>'}
+      </div>`;
   } else if (state.currentTab === 2) { // Contacts
-    html = `<div class="p-4 divide-y divide-gray-200 dark:divide-gray-800">
-      ${DATA.contacts.map(c => `
-        <div class="py-3 flex items-center justify-between" onclick="makeCall('${c.name}')">
-          <div class="font-medium">${c.name}</div>
-          <div class="text-xs text-gray-500">${c.num}</div>
-        </div>
-      `).join('')}
-    </div>`;
+    const sorted = [...DATA.contacts].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+    let prev = '';
+    html = `<div class="px-4 pt-3"><div class="bg-gray-200 dark:bg-zinc-800 rounded-lg px-3 py-1.5 text-sm text-gray-500">🔍 검색</div></div>
+      <div class="px-4 pb-4">` + sorted.map(c => {
+        const ch = c.name[0];
+        const head = ch !== prev ? `<div class="pt-3 pb-1 text-xs font-bold text-gray-400">${ch}</div>` : '';
+        prev = ch;
+        return head + `<div class="py-2.5 flex items-center justify-between border-b border-gray-200 dark:border-gray-800" onclick="makeCall('${c.name}')">
+          <div class="font-medium">${c.name}</div><div class="text-xs text-gray-500">${c.num}</div></div>`;
+      }).join('') + `</div>`;
   } else if (state.currentTab === 3) { // Voicemails
     html = `<div class="p-4 divide-y divide-gray-200 dark:divide-gray-800">
       ${DATA.voicemails.map(v => `
@@ -908,10 +958,10 @@ function sendKakaoMsg(chatId) {
 
 // ================= APP 5: INSTAGRAM =================
 function renderInstaApp(body, tab) {
-  const tabs = ['피드', '릴스'];
+  const tabs = ['홈', '릴스', 'DM', '프로필'];
   tab.innerHTML = tabs.map((t, idx) => `
     <div class="tab-item ${state.currentTab === idx ? 'active' : ''}" onclick="switchTab(${idx})">
-      <div class="text-[18px]">${['🏠', '🎬'][idx]}</div>
+      <div class="text-[18px]">${['🏠', '🎬', '✉️', '👤'][idx]}</div>
       <span>${t}</span>
     </div>
   `).join('');
@@ -949,6 +999,10 @@ function renderInstaApp(body, tab) {
         `).join('')}
       </div>
     `;
+  } else if (state.currentTab === 2) {
+    instaDM(body);
+  } else if (state.currentTab === 3) {
+    instaProfile(body);
   } else { // Reels
     body.innerHTML = `
       <div class="relative h-full bg-black text-white">
@@ -965,6 +1019,50 @@ function renderInstaApp(body, tab) {
     `;
   }
 }
+function instaDM(body) {
+  $('#app-title').textContent = '메시지';
+  const dms = DATA.insta.dms;
+  if (state.activeSub !== null) {
+    const d = dms.find(x => x.id === state.activeSub);
+    $('#app-title').textContent = d.name;
+    body.innerHTML = `<div class="p-3 space-y-2">
+      <button class="text-xs text-iosBlue" onclick="openChatRoom(null)">‹ 목록</button>
+      ${d.msgs.map(m => `<div class="flex ${m.me ? 'justify-end' : ''}">
+        <div class="px-3 py-2 rounded-2xl text-sm max-w-[70%] ${m.me ? 'bg-[#3797F0] text-white' : 'bg-gray-200 text-black'}">${m.text}</div></div>`).join('')}
+    </div>`;
+    return;
+  }
+  body.innerHTML = dms.map(d => `
+    <div class="flex items-center gap-3 px-4 py-3 cursor-pointer" onclick="openChatRoom(${d.id})">
+      <img src="${d.avatar}" class="w-12 h-12 rounded-full object-cover bg-gray-300">
+      <div class="flex-1 min-w-0">
+        <div class="text-sm ${d.unread ? 'font-bold' : ''}">${d.name}</div>
+        <div class="text-xs text-gray-500 truncate">${d.last} · ${d.time}</div>
+      </div>
+      ${d.unread ? '<span class="w-2 h-2 rounded-full bg-[#3797F0]"></span>' : ''}
+    </div>`).join('');
+}
+
+function instaProfile(body) {
+  const p = DATA.insta.profile;
+  $('#app-title').textContent = p.handle;
+  body.innerHTML = `<div class="p-4">
+    <div class="flex items-center gap-5">
+      <img src="${p.avatar}" class="w-20 h-20 rounded-full object-cover bg-gray-300">
+      <div class="flex-1 flex justify-around text-center text-sm">
+        <div><b>${p.posts.length}</b><div class="text-xs">게시물</div></div>
+        <div><b>${p.followers}</b><div class="text-xs">팔로워</div></div>
+        <div><b>${p.following}</b><div class="text-xs">팔로잉</div></div>
+      </div>
+    </div>
+    <div class="mt-3 text-sm font-bold">${p.name}</div>
+    <div class="text-xs whitespace-pre-line">${p.bio}</div>
+    <div class="grid grid-cols-3 gap-0.5 mt-4">
+      ${p.posts.map(s => `<img src="${s}" class="aspect-square object-cover w-full bg-gray-300">`).join('')}
+    </div>
+  </div>`;
+}
+
 
 // ================= APP 6: CALENDAR =================
 function renderCalendarApp(body, tab) {
