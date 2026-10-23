@@ -460,7 +460,9 @@ const SEOUL = {
       SEOUL,
       { ...SEOUL, city: "대전광역시" } // 임시로 서울 값과 같아요 → 대전 날씨로 바꿔주세요
     ]
-  }
+  },
+  widget: { title: "", artist: "", cover: "", logo: "", bg: "#7a2b22", playing: true }
+
 
 };
 
@@ -478,8 +480,7 @@ const APPS = {
   weather: { name: "날씨", bg: "linear-gradient(#4aa3f0,#2b6fd6)", icon: "☀️", theme: "#2b6fd6", fullDark: true },
   spotify: { name: "Spotify", bg: "#1DB954", icon: "♫", dark: true, theme: "#1DB954" },
   youtube: { name: "YouTube", bg: "#FF0000", icon: "▶", locked: true },
-  calendar: { name: "캘린더", bg: "#FFFFFF", icon: DATA.cal.today, color: "#FF3B30", theme: "#FF3B30" },
-  widget: { title: "", artist: "", cover: "", logo: "", bg: "#7a2b22", playing: true }
+  calendar: { name: "캘린더", bg: "#FFFFFF", icon: DATA.cal.today, color: "#FF3B30", theme: "#FF3B30" }
 };
 
 let state = {
@@ -508,9 +509,10 @@ function autoScale() {
   const vv = window.visualViewport;
   const w = vv ? vv.width : window.innerWidth;
   const h = vv ? vv.height : window.innerHeight;
-  const s = Math.min(w / 440, h / 912); // 폰(402x874) + 테두리 여유
+  const s = Math.min(1, (w - 16) / 428, (h - 16) / 900);
   $('#phone-container').style.setProperty('--s', s);
 }
+
 window.addEventListener('resize', autoScale);
 if (window.visualViewport) window.visualViewport.addEventListener('resize', autoScale);
 autoScale();
@@ -569,6 +571,9 @@ function renderPinDots() {
       dot.classList.remove('bg-white');
     }
   });
+}
+function buzz() {
+  if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
 }
 
 function handlePinInput(val) {
@@ -629,6 +634,8 @@ function toggleWidget(e) {
   e.stopPropagation();
   DATA.widget.playing = !DATA.widget.playing;
   renderHomeScreen();
+}
+renderHomeScreen();
 
 // ================= APP DISPATCHER =================
 function openApp(appId) {
