@@ -467,8 +467,8 @@ const SEOUL = {
 };
 
 // Load Saved Data or fallback
-let DATA = JSON.parse(localStorage.getItem("IPHONE17_DATA_v3") || JSON.stringify(DEFAULT_DATA));
-function saveData() { localStorage.setItem("IPHONE17_DATA_v3", JSON.stringify(DATA)); }
+let DATA = JSON.parse(localStorage.getItem("IPHONE17_DATA_v5") || JSON.stringify(DEFAULT_DATA));
+function saveData() { localStorage.setItem("IPHONE17_DATA_v5", JSON.stringify(DATA)); }
 
 // App Definitions
 const APPS = {
@@ -527,6 +527,9 @@ function showScreen(id) {
   $('#screen-app').classList.toggle('dark', !!app && !!app.dark);
   $('#home-indicator').classList.toggle('dark', light);
   $('#status-bar').style.color = light ? '#000' : '#fff';
+  $('#home-indicator').addEventListener('click', () => {
+  if (state.currentScreen === 'app') showScreen('home');
+});
 }
 
 // Dynamic Island Feedback
@@ -1132,7 +1135,6 @@ function renderCalendarApp(body, tab) {
       <div class="mt-6 border-t pt-4">
         <div class="flex justify-between items-center mb-3">
           <h3 class="font-bold text-base">${month}월 ${state.selectedDay}일 일정</h3>
-          <button onclick="addCalEvent('${selectedKey}')" class="text-xs bg-iosBlue text-white px-2.5 py-1 rounded-full">+ 추가</button>
         </div>
         <div class="space-y-2">
           ${dayEvents.length ? dayEvents.map(e => `
@@ -1167,7 +1169,7 @@ function renderWeatherApp(body, tab) {
   const w = cities[idx];
 
   body.innerHTML = `
-    <div class="min-h-full text-white pt-[64px] pb-6 px-4" style="background:linear-gradient(#3f6fb0,#7aa6de)">
+  <div class="min-h-full text-white pt-[64px] pb-[110px] px-4" style="background:linear-gradient(#3f6fb0,#7aa6de)">
       <div class="text-center">
         <div class="text-[13px]">➤ 집</div>
         <div class="text-[34px] leading-tight">${w.city}</div>
@@ -1191,7 +1193,7 @@ function renderWeatherApp(body, tab) {
             <span class="w-9">${d.hi}°</span>
           </div>`).join('')}
       </div>
-      <div class="sticky bottom-8 mt-4 flex justify-center">
+      <div class="fixed bottom-[28px] left-1/2 -translate-x-1/2 z-50">
         <div class="bg-black/70 rounded-full px-5 py-3 flex gap-3 items-center">
           <span class="text-xs">➤</span>
           ${cities.map((c, i) => `<button onclick="setCity(${i})" class="w-2 h-2 rounded-full ${i === idx ? 'bg-white' : 'bg-white/40'}"></button>`).join('')}
