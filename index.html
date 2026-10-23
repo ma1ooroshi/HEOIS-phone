@@ -453,11 +453,14 @@ updateTime();
 
 // Resize Scaling for Responsive Layout
 function autoScale() {
-  const container = $('#phone-container');
-  const scale = Math.min(1, (window.innerHeight - 20) / 874, (window.innerWidth - 10) / 402);
-  container.style.transform = `scale(${scale})`;
+  const vv = window.visualViewport;
+  const w = vv ? vv.width : window.innerWidth;
+  const h = vv ? vv.height : window.innerHeight;
+  const s = Math.min(w / 440, h / 912); // 폰(402x874) + 테두리 여유
+  $('#phone-container').style.setProperty('--s', s);
 }
 window.addEventListener('resize', autoScale);
+if (window.visualViewport) window.visualViewport.addEventListener('resize', autoScale);
 autoScale();
 
 // Screen Switcher
