@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>iPhone 17 Pro</title>
 <meta property="og:title" content="iPhone 17 Web OS">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
@@ -32,16 +32,15 @@
 </script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
   body {
     background: #111113;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    position: fixed;
+    inset: 0;
     font-family: Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;
     user-select: none;
-    overflow: hidden;
   }
+  #app-body { overscroll-behavior: contain; }
   
   /* 아이폰 17 규격 프레임 (402pt x 874pt) */
   #phone-container {
@@ -52,7 +51,10 @@
     position: relative;
     overflow: hidden;
     box-shadow: 0 0 0 12px #2c2c2e, 0 0 0 13px #1a1a1b, 0 30px 80px rgba(0, 0, 0, 0.8);
-    transition: transform 0.2s ease;
+        position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(var(--s, 1));
   }
 
   /* Screen View transition */
