@@ -319,7 +319,22 @@
 
 <script>
 // ================= USER CONFIGURABLE DATA =================
-const DEFAULT_DATA = {
+const SEOUL = {
+  city: "서울특별시", temp: 20, desc: "맑음", high: 20, low: 6,
+  note: "오후 5시쯤 부분적으로 흐린 상태가 예상됩니다. 돌풍의 풍속은 최대 4m/s입니다.",
+  hourly: [
+    { time: "지금", icon: "☀️", temp: "20°" }, { time: "오후 3시", icon: "☀️", temp: "20°" },
+    { time: "오후 4시", icon: "☀️", temp: "20°" }, { time: "오후 5시", icon: "🌤️", temp: "20°" },
+    { time: "오후 5:45", icon: "🌅", temp: "일몰" }
+  ],
+  daily: [
+    { d: "오늘", icon: "☁️", lo: 6, hi: 20 }, { d: "토", icon: "☁️", lo: 14, hi: 19 },
+    { d: "일", icon: "☀️", lo: 12, hi: 25 }, { d: "월", icon: "🌤️", lo: 15, hi: 23 },
+    { d: "화", icon: "☀️", lo: 5, hi: 17 }
+  ]
+};
+
+  const DEFAULT_DATA = {
   pin: "1234",
   hint: "초기 암호는 1234 입니다",
   wallpaper: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop",
@@ -440,20 +455,18 @@ const DEFAULT_DATA = {
     }
   },
 
-  weather: {
-    city: "서울", temp: 18, desc: "맑음", high: 22, low: 11,
-    hourly: [
-      { time: "지금", temp: 18, icon: "☀️" },
-      { time: "오후 10시", temp: 16, icon: "🌙" },
-      { time: "오후 11시", temp: 15, icon: "🌙" },
-      { time: "오전 00시", temp: 14, icon: "☁️" }
+    weather: {
+    cities: [
+      SEOUL,
+      { ...SEOUL, city: "대전광역시" } // 임시로 서울 값과 같아요 → 대전 날씨로 바꿔주세요
     ]
   }
+
 };
 
 // Load Saved Data or fallback
-let DATA = JSON.parse(localStorage.getItem("IPHONE17_DATA_v2") || JSON.stringify(DEFAULT_DATA));
-function saveData() { localStorage.setItem("IPHONE17_DATA_v2", JSON.stringify(DATA)); }
+let DATA = JSON.parse(localStorage.getItem("IPHONE17_DATA_v3") || JSON.stringify(DEFAULT_DATA));
+function saveData() { localStorage.setItem("IPHONE17_DATA_v3", JSON.stringify(DATA)); }
 
 // App Definitions
 const APPS = {
@@ -1142,30 +1155,52 @@ function addCalEvent(dateKey) {
 // ================= APP 7: WEATHER =================
 function renderWeatherApp(body, tab) {
   tab.style.display = 'none';
-  const w = DATA.weather;
+  const cities = DATA.weather.cities;
+  const idx = state.weatherIdx || 0;
+  const w = cities[idx];
 
   body.innerHTML = `
-    <div class="min-h-full bg-gradient-to-b from-blue-500 to-blue-700 text-white p-6 text-center">
-      <div class="text-2xl font-semibold">${w.city}</div>
-      <div class="text-7xl font-extralight my-2">${w.temp}°</div>
-      <div class="text-lg font-medium">${w.desc}</div>
-      <div class="text-sm opacity-80 mt-1">최고 ${w.high}° | 최저 ${w.low}°</div>
-
-      <div class="mt-8 bg-white/10 backdrop-blur-md rounded-2xl p-4">
-        <div class="text-xs font-medium mb-3 text-left opacity-75">시간별 예보</div>
-        <div class="flex justify-between text-xs">
-          ${w.hourly.map(h => `
-            <div class="flex flex-col items-center gap-1">
-              <span>${h.time}</span>
-              <span class="text-lg">${h.icon}</span>
-              <span class="font-bold">${h.temp}°</span>
-            </div>
-          `).join('')}
+    <div class="min-h-full text-white pt-[64px] pb-6 px-4" style="background:linear-gradient(#3f6fb0,#7aa6de)">
+      <div class="text-center">
+        <div class="text-[13px]">➤ 집</div>
+        <div class="text-[34px] leading-tight">${w.city}</div>
+        <div class="text-[92px] font-extralight leading-none">${w.temp}°</div>
+        <div class="text-lg">${w.desc}</div>
+        <div class="text-lg">최고:${w.high}° 최저:${w.low}°</div>
+      </div>
+      <div class="mt-6 bg-white/15 rounded-2xl p-4">
+        <div class="pb-3 border-b border-white/20 text-[13px]">${w.note}</div>
+        <div class="flex justify-between pt-3 text-xs">
+          ${w.hourly.map(h => `<div class="flex flex-col items-center gap-2"><span>${h.time}</span><span class="text-lg">${h.icon}</span><b>${h.temp}</b></div>`).join('')}
         </div>
       </div>
-    </div>
-  `;
+      <div class="mt-3 bg-white/15 rounded-2xl p-4">
+        <div class="text-xs opacity-70 pb-2 border-b border-white/20">📅 10일간의 일기예보</div>
+        ${w.daily.map(d => `
+          <div class="flex items-center gap-3 py-2.5 border-b border-white/15 text-[17px]">
+            <span class="w-12">${d.d}</span><span class="w-10 text-center">${d.icon}</span>
+            <span class="w-9 text-right opacity-60">${d.lo}°</span>
+            <div class="flex-1 h-1 rounded bg-black/20 relative"><div class="absolute h-1 rounded bg-yellow-300" style="left:${d.lo / 35 * 100}%;width:${(d.hi - d.lo) / 35 * 100}%"></div></div>
+            <span class="w-9">${d.hi}°</span>
+          </div>`).join('')}
+      </div>
+      <div class="sticky bottom-8 mt-4 flex justify-center">
+        <div class="bg-black/70 rounded-full px-5 py-3 flex gap-3 items-center">
+          <span class="text-xs">➤</span>
+          ${cities.map((c, i) => `<button onclick="setCity(${i})" class="w-2 h-2 rounded-full ${i === idx ? 'bg-white' : 'bg-white/40'}"></button>`).join('')}
+        </div>
+      </div>
+    </div>`;
+
+  let x0 = 0;
+  body.ontouchstart = e => x0 = e.touches[0].clientX;
+  body.ontouchend = e => {
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 60) setCity(Math.max(0, Math.min(cities.length - 1, idx + (dx < 0 ? 1 : -1))));
+  };
 }
+
+function setCity(i) { state.weatherIdx = i; renderApp(); }
 
 // Tab Switcher Handler
 function switchTab(idx) {
