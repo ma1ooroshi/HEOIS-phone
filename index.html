@@ -465,7 +465,8 @@ const APPS = {
   weather: { name: "날씨", bg: "linear-gradient(#4aa3f0,#2b6fd6)", icon: "☀️", theme: "#2b6fd6", fullDark: true },
   spotify: { name: "Spotify", bg: "#1DB954", icon: "♫", dark: true, theme: "#1DB954" },
   youtube: { name: "YouTube", bg: "#FF0000", icon: "▶", locked: true },
-  calendar: { name: "캘린더", bg: "#FFFFFF", icon: DATA.cal.today, color: "#FF3B30", theme: "#FF3B30" }
+  calendar: { name: "캘린더", bg: "#FFFFFF", icon: DATA.cal.today, color: "#FF3B30", theme: "#FF3B30" },
+  widget: { title: "", artist: "", cover: "", logo: "", bg: "#7a2b22", playing: true }
 };
 
 let state = {
@@ -577,28 +578,44 @@ function handlePinInput(val) {
 }
 // ================= HOME SCREEN =================
 function renderHomeScreen() {
-  const grid = $('#main-app-grid');
-  const appsToDisplay = ['insta', 'weather', 'spotify', 'youtube', 'calendar'];
-  
-  grid.innerHTML = appsToDisplay.map(id => {
+  const w = DATA.widget;
+  const icons = ['insta', 'weather', 'youtube', 'calendar'].map(id => {
     const app = APPS[id];
     return `
       <div class="app-icon-wrapper" onclick="openApp('${id}')">
-        <div class="app-icon" style="background: ${app.bg}; color: ${app.color || '#fff'}">
-          ${app.icon}
-        </div>
+        <div class="app-icon" style="background: ${app.bg}; color: ${app.color || '#fff'}">${app.icon}</div>
         <span class="app-label">${app.name}</span>
-      </div>
-    `;
+      </div>`;
   }).join('');
+
+  $('#main-app-grid').innerHTML = `
+    <div class="col-span-2 row-span-2 rounded-[24px] p-3.5 flex flex-col justify-between relative overflow-hidden"
+         style="background:${w.bg}; aspect-ratio:1/1; align-self:start">
+      <div class="flex justify-between items-start">
+        <div class="w-[58px] h-[58px] rounded-lg bg-black/25 overflow-hidden">
+          ${w.cover ? `<img src="${w.cover}" class="w-full h-full object-cover">` : ''}
+        </div>
+        <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center text-[14px] overflow-hidden" style="color:${w.bg}">
+          ${w.logo ? `<img src="${w.logo}" class="w-full h-full object-cover">` : '♫'}
+        </div>
+      </div>
+      <div class="flex items-end justify-between gap-2 pb-1">
+        <div class="min-w-0 text-white">
+          <div class="font-bold text-[15px] leading-tight">${w.title}</div>
+          <div class="text-[13px] opacity-75">${w.artist}</div>
+        </div>
+        <button onclick="toggleWidget(event)" class="w-11 h-11 rounded-full bg-white flex-none flex items-center justify-center text-[16px]" style="color:${w.bg}">
+          ${w.playing ? '❚❚' : '▶'}
+        </button>
+      </div>
+      <div class="absolute left-0 right-0 bottom-0 h-[3px] bg-white/30"><div class="h-full w-1/4 bg-white"></div></div>
+    </div>` + icons;
 }
-renderHomeScreen();
 
-// Home Indicator Click
-$('#home-indicator').addEventListener('click', () => {
-  if (state.currentScreen === 'app') showScreen('home');
-});
-
+function toggleWidget(e) {
+  e.stopPropagation();
+  DATA.widget.playing = !DATA.widget.playing;
+  renderHomeScreen();
 
 // ================= APP DISPATCHER =================
 function openApp(appId) {
@@ -1152,6 +1169,7 @@ function renderWeatherApp(body, tab) {
 
 // Tab Switcher Handler
 function switchTab(idx) {
+  if (state.currentApp === 'kakao' && idx === 2) return;
   state.currentTab = idx;
   state.activeSub = null;
   renderApp();
